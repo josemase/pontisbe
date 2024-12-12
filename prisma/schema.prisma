@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:8142105@localhost:5432/test"
+}
+
+model profile {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String
+  fullName      String
+  birthDate     DateTime?
+  deathDate     DateTime?
+  birthPlace    String?
+  deathPlace    String?
+  introduction  String?
+  profileImages String[]
+  interests     Int[]
+  religion      String?
+  links         String[]
+  story         story[]
+  media         media[]
+  family        family[]
+}
+
+model story {
+  id               Int     @id @default(autoincrement())
+  profileId        String  @db.Uuid
+  title            String
+  content          String
+  date             Int
+  biographySection String
+  profile          profile @relation(fields: [profileId], references: [id])
+  media            media[]
+}
+
+model media {
+  id        Int     @id @default(autoincrement())
+  profileId String  @db.Uuid
+  storyId   Int?
+  media     String
+  profile   profile @relation(fields: [profileId], references: [id])
+  story     story?  @relation(fields: [storyId], references: [id])
+}
+
+model family {
+  id        Int     @id @default(autoincrement())
+  profileId String  @db.Uuid
+  fullName  String
+  relation  String
+  profile   profile @relation(fields: [profileId], references: [id])
+}

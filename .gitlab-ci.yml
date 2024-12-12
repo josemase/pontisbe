@@ -1,0 +1,21 @@
+stages:
+  - setup
+  - test
+  - deploy
+
+setup-job:
+  stage: setup
+  script:
+    - echo "Setting up the environment"
+
+test-job:
+  stage: test
+  script:
+    - echo "Running tests"
+
+
+deploy-job:
+  stage: deploy
+  script:
+    - echo "Deploying the application"
+    

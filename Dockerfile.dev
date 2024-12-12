@@ -1,0 +1,29 @@
+# Use the official Node.js image as the bas image
+FROM node:17
+
+# Create and change to the app directory
+WORKDIR /Users/amadeuspeterson/Desktop/appbe
+
+# Copy the package.json and package-lock.json
+COPY package*.json ./
+
+# Install the dependencies
+RUN npm install
+
+# Install Typescript globally
+RUN npm install -g typescript
+
+# Copy the app source code
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Compile the Typescript code
+RUN npm run build
+
+# Expose the port the app runs on
+EXPOSE 4000
+
+# Define the command to run the app
+CMD ["sh", "-c", "npx prisma generate && npm run dev"]
