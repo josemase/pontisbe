@@ -7,7 +7,7 @@
 vercel.json
 /prisma/migrations
 
-/dist
+#/dist
 
 # testing
 /coverage
