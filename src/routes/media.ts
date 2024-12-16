@@ -7,7 +7,7 @@ const router = Router();
 const prisma = new PrismaClient();
 
 // Creates a media item tied to a profile
-// curl -X POST http://localhost:4000/mediaGallery -H "Content-Type: application/json" -d '{"media": "https://www.google.com", "message": "This is a message", "profile_id": "~put profile id here~"}'
+// curl -X POST http://localhost:4000/media -H "Content-Type: application/json" -d '{"media": "https://www.google.com", "message": "This is a message", "profile_id": "~put profile id here~"}'
 router.post('/', async (req: Request, res: Response) => {
     async function createMedia() {
         try {
