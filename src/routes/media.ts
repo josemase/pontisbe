@@ -20,7 +20,7 @@ interface MulterRequest extends Request {
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 // Creates a media item tied to a profile
-// curl -X POST http://localhost:4000/media/google-oauth2%7C106024258129062503402 -H "Content-Type: application/json" -d '{"media": "https://www.google.com", "message": "This is a message", "profile_id": "~put profile id here~"}'
+// curl -X POST http://localhost:4000/media/google-oauth2%7C106024258129062503402 -H "Content-Type: application/json" -d '{"media": "https://www.google.com(file)", "profile_id": "This is a id string", "story_id": "~put profile id here Integer~"}'
 router.post('/:id', upload.fields([{ name: 'media', maxCount: 1}]), async (req: Request, res: Response) => {
     async function createMedia() {
         const multerReq= req as MulterRequest;
