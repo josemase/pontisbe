@@ -21,7 +21,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 // Creates a media item tied to a profile
 // curl -X POST http://localhost:4000/media/google-oauth2%7C106024258129062503402 -H "Content-Type: application/json" -d '{"media": "https://www.google.com(file)", "profile_id": "This is a id string", "story_id": "~put profile id here Integer~"}'
-router.post('/:id', upload.fields([{ name: 'media', maxCount: 1}]), async (req: Request, res: Response) => {
+router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: Request, res: Response) => {
     async function createMedia() {
         const multerReq= req as MulterRequest;
         const {
@@ -32,36 +32,58 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 1}]), async (req: 
         if (!multerReq.files || !multerReq.files['media']) {
             return res.status(400).json({ error: 'media image are required.' });
         }
-        const mediaImage = multerReq.files['media'][0];
-        const id = multerReq.params.id;
-        try {
-            const uuid = randomUUID();
-            const bucketName = process.env.S3_BUCKET_NAME;
-            const region = process.env.AWS_REGION;
-            const client = new S3Client({ region });
-            const mediaImageKey = `${id}/${uuid}/media`;
-            await client.send(new PutObjectCommand({
-                Bucket: bucketName,
-                Key: mediaImageKey,
-                Body: mediaImage.buffer,
-                ContentType: mediaImage.mimetype
-            }));
+        for(let i = 0; i < multerReq.files['media'].length; i++) {
+            const mediaImage = multerReq.files['media'][i];
+            const id = multerReq.params.id;
+            try {
+                const uuid = randomUUID();
+                const bucketName = process.env.S3_BUCKET_NAME;
+                const region = process.env.AWS_REGION;
+                const client = new S3Client({region});
+                const mediaImageKey = `${id}/${uuid}/media`;
+                await client.send(new PutObjectCommand({
+                    Bucket: bucketName,
+                    Key: mediaImageKey,
+                    Body: mediaImage.buffer,
+                    ContentType: mediaImage.mimetype
+                }));
 
-            const media = await prisma.media.create({
-                data: {
-                    media:mediaImageKey,
-                    profileId: profile_id,
-                    storyId: parseInt(String(story_id))
+                const media = await prisma.media.create({
+                    data: {
+                        media: mediaImageKey,
+                        profileId: profile_id,
+                        storyId: parseInt(String(story_id))
+                    }
+                });
+
+                res.json(media);
+            } catch (err) {
+                res.status(500).json({error: 'Internal Server Error', message: err});
+            }
+        }
+    }
+
+    createMedia();
+});
+
+// Deletes a media item by media id
+// curl -X DELETE http://localhost:4000/media/~put media id here~
+router.delete('/:id', async (req: Request, res: Response) => {
+    async function deleteMedia() {
+        try {
+            const media = await prisma.media.delete({
+                where: {
+                    id: parseInt(req.params.id)
                 }
             });
 
             res.json(media);
         } catch (err) {
-            res.status(500).json({ error: 'Internal Server Error', message: err });
+            res.status(500).json({ error: 'Internal Server Error' });
         }
     }
 
-    createMedia();
+    deleteMedia();
 });
 
 //====
