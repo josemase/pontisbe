@@ -1,17 +1,79 @@
 import {Router, Request, Response} from 'express';
 import { PrismaClient } from '@prisma/client';
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {GetObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import {randomUUID} from "crypto";
+import multer from "multer";
 
 const router = Router();
 const prisma = new PrismaClient();
-
+interface MediaData {
+    profile_id: string;
+    story_id: number;
+}
+interface MulterRequest extends Request {
+    files?: {
+        [fieldname: string]: Express.Multer.File[];
+    };
+    body: MediaData;
+}
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 // Creates a media item tied to a profile
-// curl -X POST http://localhost:4000/media -H "Content-Type: application/json" -d '{"media": "https://www.google.com", "message": "This is a message", "profile_id": "~put profile id here~"}'
-router.post('/', async (req: Request, res: Response) => {
+// curl -X POST http://localhost:4000/media/google-oauth2%7C106024258129062503402 -H "Content-Type: application/json" -d '{"media": "https://www.google.com", "message": "This is a message", "profile_id": "~put profile id here~"}'
+router.post('/:id', upload.fields([{ name: 'media', maxCount: 1}]), async (req: Request, res: Response) => {
     async function createMedia() {
+        const multerReq= req as MulterRequest;
+        const {
+            profile_id,
+            story_id
+        }=multerReq.body;
+
+        if (!multerReq.files || !multerReq.files['media']) {
+            return res.status(400).json({ error: 'media image are required.' });
+        }
+        const mediaImage = multerReq.files['media'][0];
+        const id = multerReq.params.id;
         try {
+            const uuid = randomUUID();
+            const bucketName = process.env.S3_BUCKET_NAME;
+            const region = process.env.AWS_REGION;
+            const client = new S3Client({ region });
+            const mediaImageKey = `${id}/${uuid}/media`;
+            await client.send(new PutObjectCommand({
+                Bucket: bucketName,
+                Key: mediaImageKey,
+                Body: mediaImage.buffer,
+                ContentType: mediaImage.mimetype
+            }));
+
             const media = await prisma.media.create({
+                data: {
+                    media:mediaImageKey,
+                    profileId: profile_id,
+                    storyId: parseInt(String(story_id))
+                }
+            });
+
+            res.json(media);
+        } catch (err) {
+            res.status(500).json({ error: 'Internal Server Error', message: err });
+        }
+    }
+
+    createMedia();
+});
+
+//====
+//updates a media item by media id
+// curl -X PUT http://localhost:4000/media/~put media id here~ -H "Content-Type: application/json" -d '{"media": "https://www.google.com", "message": "This is a message", "profile_id": "~put profile id here~"}'
+router.put('/:id', async (req: Request, res: Response) => {
+    async function updateMedia() {
+        try {
+            const media = await prisma.media.update({
+                where: {
+                    id: parseInt(req.params.id)
+                },
                 data: {
                     media: req.body.media,
                     profile: {
@@ -25,11 +87,11 @@ router.post('/', async (req: Request, res: Response) => {
 
             res.json(media);
         } catch (err) {
-            res.status(500).json({ error: 'Internal Server Error', message: err });
+            res.status(500).json({ error: 'Internal Server Error' });
         }
     }
 
-    createMedia();
+    updateMedia();
 });
 
 // Gets a media gallery by profile id

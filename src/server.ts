@@ -6,14 +6,13 @@ import storyRoutes from './routes/story.js';
 import mediaGalleryRoutes from './routes/media.js';
 import familyRoutes from './routes/family.js';
 
-dotenv.config();
+
 
 const app = express();
 const port = 4000;
-
+dotenv.config();
 app.use(cors());
 app.use(express.json());
-
 app.use('/user', userRoutes);
 app.use('/story', storyRoutes);
 app.use('/media', mediaGalleryRoutes);

@@ -220,7 +220,7 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
         } catch (err) {
             if (err instanceof Error) {
                 console.error("Failed to create profile:", err.message);
-                res.status(500).json({ error: 'Internal Server Error', message: err.message });
+                res.status(500).json({ error: 'Internal Server Error is the following:', message: err.message });
             } else {
                 res.status(500).json({ error: 'Unknown Error' });
             }
@@ -239,7 +239,6 @@ router.put('/profile/:id', async (req: CustomRequest<ProfileData>, res: Response
             let tmp = req.body;
             if(req.body.birthDate){
             tmp.birthDate = new Date(req.body.birthDate);
-
             tmp.deathDate = new Date(req.body.deathDate);
         }
             const profile = await prisma.profile.update({
