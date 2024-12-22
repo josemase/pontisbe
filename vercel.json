@@ -11,5 +11,12 @@
       "src": "/(.*)",
       "dest": "/dist/server.js"
     }
-  ]
+  ],
+  "env": {
+    "AWS_ACCESS_KEY_ID": "AKIATJGU4GAZSMPOWZWO",
+    "AWS_SECRET_ACCESS_KEY": "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",
+    "AWS_REGION": "us-east-1",
+    "S3_BUCKET_NAME": "pontis.media",
+    "DATABASE_URL": "postgresql://ueuvkjrt62ijg0:p9ad700fb79ccd59e641eaae1b1762b1e2b7c250fd4a1cec9de5462012ba69a9f@cd1goc44htrmfn.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/dauc2t7b3pek0m"
+  }
 }
