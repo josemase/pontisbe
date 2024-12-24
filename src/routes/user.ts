@@ -168,6 +168,13 @@ router.get('/profiles/:id', async (req, res) => {
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+
+//curl -X POST http://localhost:4000/user/profile/{id} \
+//   -F "profileImage=@/path/to/your/image.jpg" \
+//   -F "fullName=~put fullname here~" \
+//   -F "birthDate=~put YYYY-MM-DD~ " \
+//   -F "deathDate=~put YYYY-MM-DD~ " \
+//   -F "birthPlace=~put the place here~ "
 router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]), async (req: Request, res: Response) => {
     console.log("Creating profile...");
     const multerReq = req as MulterRequest; // Cast req to MulterRequest type
@@ -181,7 +188,6 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
     if (!multerReq.files || !multerReq.files['profileImage']) {
         return res.status(400).json({ error: 'Profile image are required.' });
     }
-
     const profileImage = multerReq.files['profileImage'][0];
     const id = multerReq.params.id;
 
