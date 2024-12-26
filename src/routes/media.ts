@@ -24,8 +24,9 @@ const upload = multer({ storage });
 // Creates a media item tied to a profile
 // curl -X POST http://localhost:4000/media -H "Content-Type: application/json" -d '{"media": "https://www.google.com", "message": "This is a message", "profile_id": "~put profile id here~"}'
 router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: Request, res: Response) => {
-    const multerReq= req as MulterRequest;
+
     async function createMedia() {
+        const multerReq= req as MulterRequest;
         const { profile_id, story_id } = multerReq.body;
         if (!multerReq.files || !multerReq.files['media']) {
             return res.status(400).json({ error: 'media image are required.' });
@@ -151,13 +152,13 @@ router.get('/profile/:id', async (req: Request, res: Response) => {
 });
 
 // Gets a media item by media id
-// curl -X GET http://localhost:4000/mediaGallery/~put media id here~
+// curl -X GET http://localhost:4000/media/~put media id here~
 router.get('/:id', async (req: Request, res: Response) => {
     async function getMedia() {
         try {
             const media = await prisma.media.findUnique({
                 where: {
-                    id: parseInt(req.params.media_id)
+                    id: parseInt(req.params.id)
                 }
             });
 
