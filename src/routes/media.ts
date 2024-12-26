@@ -19,19 +19,18 @@ interface MulterRequest extends Request {
 }
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
-// Creates a media item tied to a profile
-// curl -X POST http://localhost:4000/media/google-oauth2%7C106024258129062503402 -H "Content-Type: application/json" -d '{"media": "https://www.google.com(file)", "profile_id": "This is a id string", "story_id": "~put profile id here Integer~"}'
-router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: Request, res: Response) => {
-    async function createMedia() {
-        const multerReq= req as MulterRequest;
-        const {
-            profile_id,
-            story_id
-        }=multerReq.body;
 
+
+// Creates a media item tied to a profile
+// curl -X POST http://localhost:4000/media -H "Content-Type: application/json" -d '{"media": "https://www.google.com", "message": "This is a message", "profile_id": "~put profile id here~"}'
+router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: Request, res: Response) => {
+    const multerReq= req as MulterRequest;
+    async function createMedia() {
+        const { profile_id, story_id } = multerReq.body;
         if (!multerReq.files || !multerReq.files['media']) {
             return res.status(400).json({ error: 'media image are required.' });
         }
+        const mediaItems = [];
         for(let i = 0; i < multerReq.files['media'].length; i++) {
             const mediaImage = multerReq.files['media'][i];
             const id = multerReq.params.id;
@@ -55,15 +54,16 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
                         storyId: parseInt(String(story_id))
                     }
                 });
+                mediaItems.push(media);
 
-                res.json(media);
             } catch (err) {
                 res.status(500).json({error: 'Internal Server Error', message: err});
             }
         }
+        res.json(mediaItems);
     }
 
-    createMedia();
+    await createMedia();
 });
 
 // Deletes a media item by media id
@@ -83,7 +83,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
         }
     }
 
-    deleteMedia();
+    await deleteMedia();
 });
 
 //====
@@ -113,7 +113,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         }
     }
 
-    updateMedia();
+    await updateMedia();
 });
 
 // Gets a media gallery by profile id
@@ -147,7 +147,7 @@ router.get('/profile/:id', async (req: Request, res: Response) => {
         }
     }
 
-    getMediaGallery();
+    await getMediaGallery();
 });
 
 // Gets a media item by media id
@@ -167,7 +167,7 @@ router.get('/:id', async (req: Request, res: Response) => {
         }
     }
 
-    getMedia();
+    await getMedia();
 });
   
 export default router;

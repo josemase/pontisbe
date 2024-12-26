@@ -43,8 +43,8 @@ router.get('/health', async (req, res) => {
 });
 
 // Upload a profile image to s3 bucket
-// curl -X POST http://localhost:4000/user/upload/profile -H "Content-Type: application/json" -d '{"image": "https://example.com/image.jpg", userId: "~put user id here~", profileId: "~put profile id here~"}'
-router.post('/upload/profile', async (req:CustomRequest<{image: string, userId: string, profileId: string}>, res: Response) => {
+// curl -X PUT http://localhost:4000/user/upload/profile -H "Content-Type: application/json" -d '{"image": "https://example.com/image.jpg", userId: "~put user id here~", profileId: "~put profile id here~"}'
+router.put('/upload/profile', async (req:CustomRequest<{image: string, userId: string, profileId: string}>, res: Response) => {
     const { image, userId, profileId } = req.body;
 
     // Upload the image to an S3 bucket
@@ -93,12 +93,9 @@ router.get('/profile/:id', async (req, res) => {
                     const profileImageUrl = await getSignedUrl(s3Client, profileImageCommand, { expiresIn: 172800 });
                     profileImageUrls.push(profileImageUrl);
                 }
-
                 // call family.ts to get family members by profile id
-                
                 // call stories.ts to get stories by profile id
                 // call media.ts to get media by profile id
-
                 return {
                     ...profile,
                     profileImageUrls,
@@ -152,7 +149,6 @@ router.get('/profiles/:id', async (req, res) => {
                     profileImageUrls: []
                 }
             }));
-
             console.log(profilesWithSignedUrls);
     
             res.json(profilesWithSignedUrls);
@@ -170,7 +166,7 @@ const upload = multer({ storage });
 
 
 //curl -X POST http://localhost:4000/user/profile/{id} \
-//   -F "profileImage=@/path/to/your/image.jpg" \
+//   -F "profileImage=file image\
 //   -F "fullName=~put fullname here~" \
 //   -F "birthDate=~put YYYY-MM-DD~ " \
 //   -F "deathDate=~put YYYY-MM-DD~ " \
