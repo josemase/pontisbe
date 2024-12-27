@@ -61,6 +61,7 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
                 res.status(500).json({error: 'Internal Server Error', message: err});
             }
         }
+        console.log("ready")
         res.json(mediaItems);
     }
 
