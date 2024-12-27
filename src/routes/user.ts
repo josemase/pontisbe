@@ -22,6 +22,8 @@ interface ProfileData {
     birthDate: any;
     deathDate: any | null;
     birthPlace: string;
+    deathPlace: string;
+    religion:string;
 }
 
 interface MulterRequest extends Request {
@@ -171,6 +173,8 @@ const upload = multer({ storage });
 //   -F "birthDate=~put YYYY-MM-DD~ " \
 //   -F "deathDate=~put YYYY-MM-DD~ " \
 //   -F "birthPlace=~put the place here~ "
+//   -F "deathPlace=~put the place here~ "
+//   -F "religion=~put the religion here~ "
 router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]), async (req: Request, res: Response) => {
     console.log("Creating profile...");
     const multerReq = req as MulterRequest; // Cast req to MulterRequest type
@@ -178,7 +182,9 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
         fullName,
         birthDate,
         deathDate,
-        birthPlace
+        birthPlace,
+        deathPlace,
+        religion
       } = multerReq.body;
 
     if (!multerReq.files || !multerReq.files['profileImage']) {
@@ -211,10 +217,10 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
                     birthDate: new Date(birthDate),
                     deathDate: newDate,
                     birthPlace,
-                    deathPlace: "",
+                    deathPlace,
                     interests: [],
                     profileImages: [profileImageKey],
-                    religion: ""
+                    religion
                 }
             });
 
@@ -255,7 +261,7 @@ router.put('/profile/:id', async (req: CustomRequest<ProfileData>, res: Response
             res.json(profile);
         } catch (err) {
             res.status(500).json(err+','+req.body);
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).json({ error: 'Internal Server Error'});
         }
     }
 
