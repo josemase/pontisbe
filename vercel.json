@@ -13,8 +13,8 @@
     }
   ],
   "env": {
-    "AWS_ACCESS_KEY_ID": "AKIA4LBKETVWCYJ5EGPF",
-    "AWS_SECRET_ACCESS_KEY": "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",
+    "AWS_ACCESS_KEY_ID": "AKIA4LBKETVWCYJ5GPF",
+    "AWS_SECRET_ACCESS_KEY": "a1PsfdzInQCmY5IhuLtMaDZC7ViBEk8mbXl/lSq/",
     "AWS_REGION": "us-west-2",
     "S3_BUCKET_NAME": "pontis-01",
     "DATABASE_URL": "postgresql://ueuvkjrt62ijg0:p9ad700fb79ccd59e641eaae1b1762b1e2b7c250fd4a1cec9de5462012ba69a9f@cd1goc44htrmfn.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/dauc2t7b3pek0m"
