@@ -13,7 +13,7 @@
     }
   ],
   "env": {
-    "AWS_ACCESS_KEY_ID": "AKIA4LBKETVWCYJ5GPF",
+    "AWS_ACCESS_KEY_ID": "AKIA4LBKETVWCYJ5EGPF",
     "AWS_SECRET_ACCESS_KEY": "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",
     "AWS_REGION": "us-west-2",
     "S3_BUCKET_NAME": "pontis-01",
