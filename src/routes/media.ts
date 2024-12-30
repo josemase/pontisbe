@@ -57,8 +57,8 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
                 });
                 mediaItems.push(media);
 
-            } catch (err) {
-                console.error('Error details:', err);
+            } catch (err: any) {
+                console.log('Error details:', err);
                 res.status(500).json({ error: 'Internal Server Error', message: err.message });
             }
         }
