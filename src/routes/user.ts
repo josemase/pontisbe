@@ -311,8 +311,9 @@ router.put('/profile/images/:uid/:id', upload.fields([{name: 'images', maxCount:
             });
 
             res.json(profile);
-        } catch (err) {
-            res.status(500).json({ error: 'Internal Server Error' });
+        } catch (err: any) {
+            console.error('Error details:', err);
+            res.status(500).json({ error: 'Internal Server Error', message: err.message });
         }
     }
 
