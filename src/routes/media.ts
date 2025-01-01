@@ -52,7 +52,8 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
                     data: {
                         media: mediaImageKey,
                         profileId: profile_id,
-                        storyId: parseInt(String(story_id))
+                        storyId: parseInt(String(story_id)),
+                        biographySection: req.body.biographySection,
                     }
                 });
                 mediaItems.push(media);

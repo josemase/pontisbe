@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
+
 	// Clears all data
 	await prisma.media.deleteMany();
 	await prisma.story.deleteMany();
@@ -103,94 +104,114 @@ async function main() {
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647.png",
 				profileId: profile.id,
-				storyId: createdStories[0].id
+				storyId: createdStories[0].id,
+				biographySection: "Infancy"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-1.png",
 				profileId: profile.id,
-				storyId: createdStories[0].id
+				storyId: createdStories[0].id,
+				biographySection: "Childhood"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-2.png",
 				profileId: profile.id,
-				storyId: createdStories[1].id
+				storyId: createdStories[1].id,
+				biographySection: "Teenage Years"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-3.png",
 				profileId: profile.id,
-				storyId: createdStories[1].id
+				storyId: createdStories[1].id,
+				biographySection: "Young Adult"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-4.png",
 				profileId: profile.id,
-				storyId: createdStories[2].id
+				storyId: createdStories[2].id,
+				biographySection: "Adulthood"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-5.png",
 				profileId: profile.id,
-				storyId: createdStories[2].id
+				storyId: createdStories[2].id,
+				biographySection: "End of Life"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-6.png",
 				profileId: profile.id,
-				storyId: createdStories[3].id
+				storyId: createdStories[3].id,
+				biographySection: "Infancy"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-7.png",
 				profileId: profile.id,
-				storyId: createdStories[3].id
+				storyId: createdStories[3].id,
+				biographySection: "Childhood"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-8.png",
 				profileId: profile.id,
-				storyId: createdStories[4].id
+				storyId: createdStories[4].id,
+				biographySection: "Teenage Years"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-9.png",
 				profileId: profile.id,
-				storyId: createdStories[4].id
+				storyId: createdStories[4].id,
+				biographySection: "Young Adult"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-10.png",
 				profileId: profile.id,
-				storyId: createdStories[5].id
+				storyId: createdStories[5].id,
+				biographySection: "Adulthood"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-11.png",
 				profileId: profile.id,
-				storyId: createdStories[5].id
+				storyId: createdStories[5].id,
+				biographySection: "End of Life"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-12.png",
-				profileId: profile.id
+				profileId: profile.id,
+				biographySection: "Infancy"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-13.png",
-				profileId: profile.id
+				profileId: profile.id,
+				biographySection: "Childhood"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-14.png",
-				profileId: profile.id
+				profileId: profile.id,
+				biographySection: "Teenage Years"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-15.png",
-				profileId: profile.id
+				profileId: profile.id,
+				biographySection: "Young Adult"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-16.png",
-				profileId: profile.id
+				profileId: profile.id,
+				biographySection: "Adulthood"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-17.png",
-				profileId: profile.id
+				profileId: profile.id,
+				biographySection: "End of Life"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-18.png",
-				profileId: profile.id
+				profileId: profile.id,
+				biographySection: "Infancy"
 			},
 			{
 				media: "auth0|66e5d945bea7e35541d9b7cf/be1f1910-b934-4044-9b52-5f37b3097b37/gallery/Rectangle 1647-19.png",
-				profileId: profile.id
+				profileId: profile.id,
+				biographySection: "Childhood"
 			}
 		]
 	});
