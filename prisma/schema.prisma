@@ -13,8 +13,12 @@ model profile {
   fullName      String
   birthDate     DateTime?
   deathDate     DateTime?
-  birthPlace    String?
-  deathPlace    String?
+  birthState    String?
+  birthCountry  String?
+  birthCity     String?
+  deathState    String?
+  deathCountry  String?
+  deathCity     String?
   introduction  String?
   profileImages String[]
   interests     Int[]

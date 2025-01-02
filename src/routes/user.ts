@@ -21,8 +21,12 @@ interface ProfileData {
     fullName: string;
     birthDate: any;
     deathDate: any | null;
-    birthPlace: string;
-    deathPlace: string;
+    birthCountry: string;
+    birthCity: string;
+    birthState: string;
+    deathCountry: string;
+    deathCity: string;
+    deathState: string;
     religion:string;
 }
 
@@ -182,8 +186,12 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
         fullName,
         birthDate,
         deathDate,
-        birthPlace,
-        deathPlace,
+        birthState,
+        birthCountry,
+        birthCity,
+        deathState,
+        deathCountry,
+        deathCity,
         religion
       } = multerReq.body;
 
@@ -216,8 +224,12 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
                     fullName,
                     birthDate: new Date(birthDate),
                     deathDate: newDate,
-                    birthPlace,
-                    deathPlace,
+                    birthState,
+                    birthCountry,
+                    birthCity,
+                    deathState,
+                    deathCountry,
+                    deathCity,
                     interests: [],
                     profileImages: [profileImageKey],
                     religion

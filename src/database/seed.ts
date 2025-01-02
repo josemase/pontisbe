@@ -23,8 +23,8 @@ async function main() {
 			fullName: "Gertrude May",
 			birthDate: new Date("1932-06-05"),
 			deathDate: new Date("2024-01-24"),
-			birthPlace: "Highland, UT",
-			deathPlace: "Highland, UT",
+			birthState: "Highland, UT",
+			birthCountry: "Highland, UT",
 			introduction: introContent,
 			interests: [1, 2, 3, 4, 5],
 			profileImages: [
