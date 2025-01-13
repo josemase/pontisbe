@@ -4,6 +4,7 @@ import {GetObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import {randomUUID} from "crypto";
 import multer from "multer";
+import sharp from 'sharp';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -41,13 +42,16 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
                 const region = process.env.AWS_REGION;
                 const client = new S3Client({region});
                 const mediaImageKey = `${id}/${uuid}/media`;
+                const compressedImageBuffer = await sharp(mediaImage.buffer)
+                    .resize(800)
+                    .jpeg({ quality: 80 })
+                    .toBuffer();
                 await client.send(new PutObjectCommand({
                     Bucket: bucketName,
                     Key: mediaImageKey,
-                    Body: mediaImage.buffer,
+                    Body: compressedImageBuffer,
                     ContentType: mediaImage.mimetype
                 }));
-
                 const media = await prisma.media.create({
                     data: {
                         media: mediaImageKey,
