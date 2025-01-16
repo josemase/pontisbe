@@ -199,15 +199,26 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
         return res.status(400).json({ error: 'Profile image are required.' });
     }
     const profileImage = multerReq.files['profileImage'][0];
-    const id = multerReq.params.id;
+    const mimeType = profileImage.mimetype;
+    let fileType = 'other';
+    if (mimeType.startsWith('image/')) {
+        fileType = 'image';
+        console.log('the file is a image');
+    } else if (mimeType.startsWith('video/')) {
+        fileType = 'video';
+        console.log('the file is a video');
+    } else {
+        console.log('El archivo no es ni una imagen ni un video');
+    }
 
+    const id = multerReq.params.id;
     async function createProfile(): Promise<void> {
         try {
             const uuid = randomUUID();
             const bucketName = process.env.S3_BUCKET_NAME;
             const region = process.env.AWS_REGION;
             const client = new S3Client({ region });
-            const profileImageKey = `${id}/${uuid}/profile`;
+            const profileImageKey = `${id}/${uuid}/${fileType}/profile`;
             await client.send(new PutObjectCommand({
                 Bucket: bucketName,
                 Key: profileImageKey,
