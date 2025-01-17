@@ -18,7 +18,8 @@ interface CustomRequest<T> extends Request {
 }
   
 interface ProfileData {
-    fullName: string;
+    firstName: string;
+    lastName: string;
     birthDate: any;
     deathDate: any | null;
     birthCountry: string;
@@ -111,7 +112,14 @@ router.get('/profile/:id', async (req, res) => {
                 };
             };
             const profileWithUrls = await profileWithSignedUrls(profile);
-            res.json(profileWithUrls);
+            console.log(profileWithUrls["profileImageUrls"]);
+            if(profileWithUrls["profileImageUrls"].length > 0){
+                for(let i = 0; i < profileWithUrls["profileImageUrls"].length; i++){
+                    profileWithUrls["profileImageUrls"][i]={type:profileWithUrls["profileImagesType"][i],url:profileWithUrls["profileImageUrls"][i]};
+                }
+            }
+            const { profileImagesType, ...profileWithUrlsSent } = profileWithUrls;
+            res.json(profileWithUrlsSent);
         } catch (err) {
             res.status(500).json({ error: 'Internal Server Error' });
         }
@@ -120,10 +128,11 @@ router.get('/profile/:id', async (req, res) => {
 
     getItem();
 });
-
+/*
 // Gets profiles by user id
 // curl -X GET http://localhost:4000/user/profiles/3f652956-9cad-4085-a8b8-fa2ffbc4ef88
 router.get('/profiles/:id', async (req, res) => {
+    console.log("aqui");
     async function getItems() {
         try {
             console.log(req.params.id);
@@ -166,24 +175,30 @@ router.get('/profiles/:id', async (req, res) => {
 
     getItems();
 });
-
+*/
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 
-//curl -X POST http://localhost:4000/user/profile/{id} \
-//   -F "profileImage=file image\
-//   -F "fullName=~put fullname here~" \
-//   -F "birthDate=~put YYYY-MM-DD~ " \
-//   -F "deathDate=~put YYYY-MM-DD~ " \
-//   -F "birthPlace=~put the place here~ "
-//   -F "deathPlace=~put the place here~ "
-//   -F "religion=~put the religion here~ "
+// curl -X POST http://localhost:4000/user/profile/{id} \
+//   -F "profileImage=@file image" \
+//   -F "firstName=~put first name here~" \
+//   -F "lastName=~put last name here~" \
+//   -F "birthDate=~put YYYY-MM-DD~" \
+//   -F "deathDate=~put YYYY-MM-DD~" \
+//   -F "birthState=~put the state here~" \
+//   -F "birthCountry=~put the country here~" \
+//   -F "birthCity=~put the city here~" \
+//   -F "deathState=~put the state here~" \
+//   -F "deathCountry=~put the country here~" \
+//   -F "deathCity=~put the city here~" \
+//   -F "religion=~put the religion here~"
 router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]), async (req: Request, res: Response) => {
     console.log("Creating profile...");
     const multerReq = req as MulterRequest; // Cast req to MulterRequest type
     const {
-        fullName,
+        firstName,
+        lastName,
         birthDate,
         deathDate,
         birthState,
@@ -203,10 +218,8 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
     let fileType = 'other';
     if (mimeType.startsWith('image/')) {
         fileType = 'image';
-        console.log('the file is a image');
     } else if (mimeType.startsWith('video/')) {
         fileType = 'video';
-        console.log('the file is a video');
     } else {
         console.log('The file is neither an image nor a video');
     }
@@ -219,7 +232,7 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
             const region = process.env.AWS_REGION;
             const client = new S3Client({ region });
             const profileImageKey = `${id}/${uuid}/profile`;
-            const profileImageKeyJSON = JSON.stringify({ "type": fileType, "key": profileImageKey });
+
             await client.send(new PutObjectCommand({
                 Bucket: bucketName,
                 Key: profileImageKey,
@@ -233,7 +246,8 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
                 data: {
                     id: uuid,
                     userId: id,
-                    fullName,
+                    firstName,
+                    lastName,
                     birthDate: new Date(birthDate),
                     deathDate: newDate,
                     birthState,
@@ -243,14 +257,13 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
                     deathCountry,
                     deathCity,
                     interests: [],
-                    profileImages: [profileImageKeyJSON],
-                    religion
+                    profileImages: [profileImageKey],
+                    religion,
+                    profileImagesType: [fileType]
                 }
             });
-
-
-
-            res.json(profile);
+            const { profileImagesType, ...newProfile } = profile;
+            res.json(newProfile);
         } catch (err) {
             if (err instanceof Error) {
                 console.error("Failed to create profile:", err.message);

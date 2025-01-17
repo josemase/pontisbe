@@ -8,25 +8,27 @@ datasource db {
 }
 
 model profile {
-  id            String    @id @default(uuid()) @db.Uuid
-  userId        String
-  fullName      String
-  birthDate     DateTime?
-  deathDate     DateTime?
-  birthState    String?
-  birthCountry  String?
-  birthCity     String?
-  deathState    String?
-  deathCountry  String?
-  deathCity     String?
-  introduction  String?
-  profileImages String[]
-  interests     Int[]
-  religion      String?
-  links         String[]
-  story         story[]
-  media         media[]
-  family        family[]
+  id                String    @id @default(uuid()) @db.Uuid
+  userId            String
+  firstName         String
+  lastName          String
+  birthDate         DateTime?
+  deathDate         DateTime?
+  birthState        String?
+  birthCountry      String?
+  birthCity         String?
+  deathState        String?
+  deathCountry      String?
+  deathCity         String?
+  introduction      String?
+  profileImages     String[]
+  interests         Int[]
+  religion          String?
+  links             String[]
+  story             story[]
+  media             media[]
+  family            family[]
+  profileImagesType String[]
 }
 
 model story {
@@ -48,6 +50,7 @@ model media {
   biographySection String
   profile          profile @relation(fields: [profileId], references: [id])
   story            story?  @relation(fields: [storyId], references: [id])
+  mediaType        String
 }
 
 model family {

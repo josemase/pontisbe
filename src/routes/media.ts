@@ -28,6 +28,7 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
 
     async function createMedia() {
         const multerReq= req as MulterRequest;
+
         const { profile_id, story_id } = multerReq.body;
         if (!multerReq.files || !multerReq.files['media']) {
             return res.status(400).json({ error: 'media image are required.' });
@@ -35,6 +36,7 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
         const mediaItems = [];
         for(let i = 0; i < multerReq.files['media'].length; i++) {
             const mediaImage = multerReq.files['media'][i];
+            const mediaTypeUploaded = mediaImage.mimetype;
             const id = multerReq.params.id;
             try {
                 const uuid = randomUUID();
@@ -58,6 +60,7 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
                         profileId: profile_id,
                         storyId: parseInt(String(story_id)),
                         biographySection: req.body.biographySection,
+                        mediaType: mediaTypeUploaded,
                     }
                 });
                 mediaItems.push(media);
