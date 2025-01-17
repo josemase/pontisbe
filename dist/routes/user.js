@@ -20,8 +20,8 @@ router.get('/health', async (req, res) => {
     }
 });
 // Upload a profile image to s3 bucket
-// curl -X POST http://localhost:4000/user/upload/profile -H "Content-Type: application/json" -d '{"image": "https://example.com/image.jpg", userId: "~put user id here~", profileId: "~put profile id here~"}'
-router.post('/upload/profile', async (req, res) => {
+// curl -X PUT http://localhost:4000/user/upload/profile -H "Content-Type: application/json" -d '{"image": "https://example.com/image.jpg", userId: "~put user id here~", profileId: "~put profile id here~"}'
+router.put('/upload/profile', async (req, res) => {
     const { image, userId, profileId } = req.body;
     // Upload the image to an S3 bucket
     const client = new S3Client({ region: process.env.AWS_REGION });
@@ -78,17 +78,31 @@ router.get('/profile/:id', async (req, res) => {
                 };
             };
             const profileWithUrls = await profileWithSignedUrls(profile);
-            res.json(profileWithUrls);
+            console.log(profileWithUrls["profileImageUrls"]);
+            if (profileWithUrls["profileImageUrls"].length > 0) {
+                for (let i = 0; i < profileWithUrls["profileImageUrls"].length; i++) {
+                    profileWithUrls["profileImageUrls"][i] = { type: profileWithUrls["profileImagesType"][i], url: profileWithUrls["profileImageUrls"][i] };
+                }
+            }
+            const { profileImagesType, ...profileWithUrlsSent } = profileWithUrls;
+            res.json(profileWithUrlsSent);
         }
         catch (err) {
-            res.status(500).json({ error: 'Internal Server Error' });
+            if (err instanceof Error) {
+                res.status(500).json({ error: 'Internal Server Error', message: err.message });
+            }
+            else {
+                res.status(500).json({ error: 'Unknown Error' });
+            }
         }
     }
     getItem();
 });
+/*
 // Gets profiles by user id
 // curl -X GET http://localhost:4000/user/profiles/3f652956-9cad-4085-a8b8-fa2ffbc4ef88
 router.get('/profiles/:id', async (req, res) => {
+    console.log("aqui");
     async function getItems() {
         try {
             console.log(req.params.id);
@@ -98,15 +112,18 @@ router.get('/profiles/:id', async (req, res) => {
                     userId: decodeURIComponent(req.params.id)
                 },
             });
+
             console.log(profiles);
-            const profilesWithSignedUrls = await Promise.all(profiles.map(async (profile) => {
+
+            const profilesWithSignedUrls = await Promise.all(profiles.map(async profile => {
                 const s3Client = new S3Client({ region: process.env.AWS_REGION });
-                if (profile.profileImages.length > 0) {
+                if(profile.profileImages.length > 0) {
                     const profileImageCommand = new GetObjectCommand({
                         Bucket: process.env.S3_BUCKET_NAME,
                         Key: profile.profileImages[0] // Store the key in the database
                     });
                     const profileImageUrl = await getSignedUrl(s3Client, profileImageCommand, { expiresIn: 172800 });
+        
                     return {
                         ...profile,
                         profileImageUrls: [profileImageUrl]
@@ -115,27 +132,54 @@ router.get('/profiles/:id', async (req, res) => {
                 return {
                     ...profile,
                     profileImageUrls: []
-                };
+                }
             }));
             console.log(profilesWithSignedUrls);
+    
             res.json(profilesWithSignedUrls);
-        }
-        catch (err) {
+        } catch (err) {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     }
+    
+
     getItems();
 });
+*/
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+// curl -X POST http://localhost:4000/user/profile/{id} \
+//   -F "profileImage=@file image" \
+//   -F "firstName=~put first name here~" \
+//   -F "lastName=~put last name here~" \
+//   -F "birthDate=~put YYYY-MM-DD~" \
+//   -F "deathDate=~put YYYY-MM-DD~" \
+//   -F "birthState=~put the state here~" \
+//   -F "birthCountry=~put the country here~" \
+//   -F "birthCity=~put the city here~" \
+//   -F "deathState=~put the state here~" \
+//   -F "deathCountry=~put the country here~" \
+//   -F "deathCity=~put the city here~" \
+//   -F "religion=~put the religion here~"
 router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1 }]), async (req, res) => {
     console.log("Creating profile...");
     const multerReq = req; // Cast req to MulterRequest type
-    const { fullName, birthDate, deathDate, birthPlace } = multerReq.body;
+    const { firstName, lastName, birthDate, deathDate, birthState, birthCountry, birthCity, deathState, deathCountry, deathCity, religion } = multerReq.body;
     if (!multerReq.files || !multerReq.files['profileImage']) {
         return res.status(400).json({ error: 'Profile image are required.' });
     }
     const profileImage = multerReq.files['profileImage'][0];
+    const mimeType = profileImage.mimetype;
+    let fileType = 'other';
+    if (mimeType.startsWith('image/')) {
+        fileType = 'image';
+    }
+    else if (mimeType.startsWith('video/')) {
+        fileType = 'video';
+    }
+    else {
+        console.log('The file is neither an image nor a video');
+    }
     const id = multerReq.params.id;
     async function createProfile() {
         try {
@@ -155,22 +199,29 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1 }
                 data: {
                     id: uuid,
                     userId: id,
-                    fullName,
+                    firstName,
+                    lastName,
                     birthDate: new Date(birthDate),
                     deathDate: newDate,
-                    birthPlace,
-                    deathPlace: "",
+                    birthState,
+                    birthCountry,
+                    birthCity,
+                    deathState,
+                    deathCountry,
+                    deathCity,
                     interests: [],
                     profileImages: [profileImageKey],
-                    religion: ""
+                    religion,
+                    profileImagesType: [fileType]
                 }
             });
-            res.json(profile);
+            const { profileImagesType, ...newProfile } = profile;
+            res.json(newProfile);
         }
         catch (err) {
             if (err instanceof Error) {
                 console.error("Failed to create profile:", err.message);
-                res.status(500).json({ error: 'Internal Server Error', message: err.message });
+                res.status(500).json({ error: 'Internal Server Error is the following:', message: err.message });
             }
             else {
                 res.status(500).json({ error: 'Unknown Error' });
@@ -246,7 +297,8 @@ router.put('/profile/images/:uid/:id', upload.fields([{ name: 'images', maxCount
             res.json(profile);
         }
         catch (err) {
-            res.status(500).json({ error: 'Internal Server Error' });
+            console.error('Error details:', err);
+            res.status(500).json({ error: 'Internal Server Error', message: err.message });
         }
     }
     updateProfileImages();

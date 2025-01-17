@@ -121,7 +121,11 @@ router.get('/profile/:id', async (req, res) => {
             const { profileImagesType, ...profileWithUrlsSent } = profileWithUrls;
             res.json(profileWithUrlsSent);
         } catch (err) {
-            res.status(500).json({ error: 'Internal Server Error' });
+            if (err instanceof Error) {
+                res.status(500).json({ error: 'Internal Server Error', message: err.message });
+            } else {
+                res.status(500).json({ error: 'Unknown Error' });
+            }
         }
     }
     
