@@ -219,7 +219,7 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
             const region = process.env.AWS_REGION;
             const client = new S3Client({ region });
             const profileImageKey = `${id}/${uuid}/profile`;
-            const profileImageKeyJSON = {"type":fileType,"key":profileImageKey};
+            const profileImageKeyJSON = JSON.stringify({ "type": fileType, "key": profileImageKey });
             await client.send(new PutObjectCommand({
                 Bucket: bucketName,
                 Key: profileImageKey,
