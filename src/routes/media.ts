@@ -44,7 +44,7 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
                 const mediaImageKey = `${id}/${uuid}/media`;
                 const compressedImageBuffer = await sharp(mediaImage.buffer)
                     .resize(800)
-                    .jpeg({ quality: 80 })
+                    .jpeg({quality: 80})
                     .toBuffer();
                 await client.send(new PutObjectCommand({
                     Bucket: bucketName,
@@ -64,10 +64,9 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
 
             } catch (err: any) {
                 console.log('Error details:', err);
-                res.status(500).json({ error: 'Internal Server Error', message: err.message });
+                res.status(500).json({error: 'Internal Server Error', message: err.message});
             }
         }
-        console.log("ready")
         res.json(mediaItems);
     }
 

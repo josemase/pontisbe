@@ -208,7 +208,7 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
         fileType = 'video';
         console.log('the file is a video');
     } else {
-        console.log('El archivo no es ni una imagen ni un video');
+        console.log('The file is neither an image nor a video');
     }
 
     const id = multerReq.params.id;
@@ -218,7 +218,8 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
             const bucketName = process.env.S3_BUCKET_NAME;
             const region = process.env.AWS_REGION;
             const client = new S3Client({ region });
-            const profileImageKey = `${id}/${uuid}/${fileType}/profile`;
+            const profileImageKey = `${id}/${uuid}/profile`;
+            const profileImageKeyJSON = {"type":fileType,"key":profileImageKey};
             await client.send(new PutObjectCommand({
                 Bucket: bucketName,
                 Key: profileImageKey,
@@ -242,10 +243,12 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
                     deathCountry,
                     deathCity,
                     interests: [],
-                    profileImages: [profileImageKey],
+                    profileImages: [profileImageKeyJSON],
                     religion
                 }
             });
+
+
 
             res.json(profile);
         } catch (err) {
