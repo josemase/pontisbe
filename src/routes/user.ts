@@ -88,7 +88,9 @@ router.get('/profile/:id', async (req, res) => {
                     id: req.params.id
                 },
             });
-
+            if (!profile) {
+                return res.status(404).json({ error: 'Profile not found' });
+            }
             const profileWithSignedUrls = async (profile: any) => {
                 const profileImageUrls = [];
                 for(let i = 0; i < profile.profileImages.length; i++) {
@@ -132,18 +134,11 @@ router.get('/profile/:id', async (req, res) => {
 
     getItem();
 });
-/*interface ProfileImage {
-    type: string;
-    url: string;
-}*/
-interface ProfileImage {
-    type: string;
-    url: string;
-}
+
 // Gets profiles by user id
 // curl -X GET http://localhost:4000/user/profiles/3f652956-9cad-4085-a8b8-fa2ffbc4ef88
 router.get('/profiles/:id', async (req, res) => {
-    console.log("aqui");
+
     async function getItems() {
         try {
             console.log(req.params.id);
@@ -153,46 +148,21 @@ router.get('/profiles/:id', async (req, res) => {
                     userId: decodeURIComponent(req.params.id)
                 },
             });
+            if(profiles.length === 0) {
+                return res.json([]);
+            }
+            const profilesWithSignedUrls = await Promise.all(profiles.map(async profile => {
+                const s3Client = new S3Client({ region: process.env.AWS_REGION });
+                if(profile.profileImages.length > 0) {
+                    const profileImageCommand = new GetObjectCommand({
+                        Bucket: process.env.S3_BUCKET_NAME,
+                        Key: profile.profileImages[0] // Store the key in the database
+                    });
+                    const profileImageUrl = await getSignedUrl(s3Client, profileImageCommand, { expiresIn: 172800 });
 
-            /*const profilesWithSignedUrls = await Promise.all(profiles.map(async (profile, i) => {
-                const profileImageUrls: ProfileImage[] = [];
-                const s3Client = new S3Client({ region: process.env.AWS_REGION });
-                if(profile.profileImages.length > 0) {
-                    const profileImageCommand = new GetObjectCommand({
-                        Bucket: process.env.S3_BUCKET_NAME,
-                        Key: profile.profileImages[0] // Store the key in the database
-                    });
-                    const profileImageUrl = await getSignedUrl(s3Client, profileImageCommand, { expiresIn: 172800 });
-                    profileImageUrls.push({
-                        type: profile.profileImagesType[i],
-                        url: profileImageUrl
-                    });
                     return {
                         ...profile,
-                        profileImageUrls
-                    };
-                }
-                return {
-                    ...profile,
-                    profileImageUrls: []
-                }
-            }));*/
-            const profilesWithSignedUrls = await Promise.all(profiles.map(async (profile, i) => {
-                const profileImageUrls: ProfileImage[] = [];
-                const s3Client = new S3Client({ region: process.env.AWS_REGION });
-                if(profile.profileImages.length > 0) {
-                    const profileImageCommand = new GetObjectCommand({
-                        Bucket: process.env.S3_BUCKET_NAME,
-                        Key: profile.profileImages[0] // Store the key in the database
-                    });
-                    const profileImageUrl = await getSignedUrl(s3Client, profileImageCommand, { expiresIn: 172800 });
-                    profileImageUrls.push({
-                        type: profile.profileImagesType[i],
-                        url: profileImageUrl
-                    });
-                    return {
-                        ...profile,
-                        profileImageUrls
+                        profileImageUrls: [profileImageUrl]
                     };
                 }
                 return {
@@ -200,17 +170,13 @@ router.get('/profiles/:id', async (req, res) => {
                     profileImageUrls: []
                 }
             }));
-
-            console.log(profilesWithSignedUrls);
-            /*for(let i=0;i<profilesWithSignedUrls.length;i++){
-                if(profilesWithSignedUrls[i]["profileImageUrls"].length > 0){
-                    for(let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++){
-                        profilesWithSignedUrls[i]["profileImageUrls"][j] = {type:profilesWithSignedUrls[i]["profileImagesType"][j],url:profilesWithSignedUrls[i]["profileImageUrls"][j]};
-                    }
+            if(profilesWithSignedUrls[0]["profileImageUrls"].length > 0){
+                for(let i = 0; i < profilesWithSignedUrls[0]["profileImageUrls"].length; i++){
+                    profilesWithSignedUrls[0]["profileImageUrls"][i]={type:profilesWithSignedUrls[0]["profileImagesType"][i],url:profilesWithSignedUrls[0]["profileImageUrls"][i]};
                 }
-            }*/
-            const [{ profileImagesType, ...profile }] = profilesWithSignedUrls;
-            res.json(profile);
+            }
+
+            res.json(profilesWithSignedUrls);
         } catch (err) {
             res.status(500).json({ error: 'Internal Server Error' });
         }
