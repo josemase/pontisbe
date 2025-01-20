@@ -160,9 +160,10 @@ router.get('/profiles/:id', async (req, res) => {
                     });
                     const profileImageUrl = await getSignedUrl(s3Client, profileImageCommand, { expiresIn: 172800 });
 
+
                     return {
                         ...profile,
-                        profileImageUrls: [profileImageUrl]
+                        profileImageUrls: [profileImageUrl] as any[]
                     };
                 }
                 return {
@@ -170,12 +171,16 @@ router.get('/profiles/:id', async (req, res) => {
                     profileImageUrls: []
                 }
             }));
-            if(profilesWithSignedUrls[0]["profileImageUrls"].length > 0){
-                for(let i = 0; i < profilesWithSignedUrls[0]["profileImageUrls"].length; i++){
-                    profilesWithSignedUrls[0]["profileImageUrls"][i]={type:profilesWithSignedUrls[0]["profileImagesType"][i],url:profilesWithSignedUrls[0]["profileImageUrls"][i]};
-                }
-            }
 
+            for(let i = 0; i < profilesWithSignedUrls.length; i++){
+                if(profilesWithSignedUrls[i]["profileImageUrls"].length > 0){
+                    for(let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++){
+
+                        profilesWithSignedUrls[i]["profileImageUrls"][j]={type:profilesWithSignedUrls[i]["profileImagesType"][j],url:profilesWithSignedUrls[i]["profileImageUrls"][j]};
+                    }
+                }
+
+            }
             res.json(profilesWithSignedUrls);
         } catch (err) {
             res.status(500).json({ error: 'Internal Server Error' });
