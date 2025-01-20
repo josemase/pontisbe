@@ -132,7 +132,10 @@ router.get('/profile/:id', async (req, res) => {
 
     getItem();
 });
-
+interface ProfileImage {
+    type: string;
+    url: string;
+}
 // Gets profiles by user id
 // curl -X GET http://localhost:4000/user/profiles/3f652956-9cad-4085-a8b8-fa2ffbc4ef88
 router.get('/profiles/:id', async (req, res) => {
@@ -147,7 +150,8 @@ router.get('/profiles/:id', async (req, res) => {
                 },
             });
 
-            const profilesWithSignedUrls = await Promise.all(profiles.map(async profile => {
+            const profilesWithSignedUrls = await Promise.all(profiles.map(async (profile, i) => {
+                const profileImageUrls: ProfileImage[] = [];
                 const s3Client = new S3Client({ region: process.env.AWS_REGION });
                 if(profile.profileImages.length > 0) {
                     const profileImageCommand = new GetObjectCommand({
@@ -155,7 +159,10 @@ router.get('/profiles/:id', async (req, res) => {
                         Key: profile.profileImages[0] // Store the key in the database
                     });
                     const profileImageUrl = await getSignedUrl(s3Client, profileImageCommand, { expiresIn: 172800 });
-        
+                    profileImageUrls.push({
+                        type: profile.profileImagesType[i],
+                        url: profileImageUrl
+                    });
                     return {
                         ...profile,
                         profileImageUrls: [profileImageUrl]
@@ -168,13 +175,11 @@ router.get('/profiles/:id', async (req, res) => {
             }));
 
             console.log(profilesWithSignedUrls);
-            for (let i = 0; i < profilesWithSignedUrls.length; i++) {
-                if (profilesWithSignedUrls[i]["profileImageUrls"].length > 0) {
-                    for (let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++) {
-                        profilesWithSignedUrls[i]["profileImageUrls"][j] = {
-                            type: profilesWithSignedUrls[i]["profileImagesType"][j],
-                            url: profilesWithSignedUrls[i]["profileImageUrls"][j] as unknown as string
-                        };
+            for(let i=0;i<profilesWithSignedUrls.length;i++){
+                if(profilesWithSignedUrls[i]["profileImageUrls"].length > 0){
+                    for(let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++){
+                        console.log("AQUIII"+profilesWithSignedUrls[i]["profileImageUrls"][j]);
+                        profilesWithSignedUrls[i]["profileImageUrls"][j] = {type:profilesWithSignedUrls[i]["profileImagesType"][j],url:profilesWithSignedUrls[i]["profileImageUrls"][j]};
                     }
                 }
             }
