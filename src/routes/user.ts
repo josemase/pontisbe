@@ -175,13 +175,10 @@ router.get('/profiles/:id', async (req, res) => {
             }));
 
             console.log(profilesWithSignedUrls);
-            for (let i = 0; i < profilesWithSignedUrls.length; i++) {
-                if (profilesWithSignedUrls[i]["profileImageUrls"].length > 0) {
-                    for (let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++) {
-                        profilesWithSignedUrls[i]["profileImageUrls"][j] = {
-                            type: profilesWithSignedUrls[i]["profileImagesType"][j],
-                            url: profilesWithSignedUrls[i]["profileImageUrls"][j].url
-                        };
+            for(let i=0;i<profilesWithSignedUrls.length;i++){
+                if(profilesWithSignedUrls[i]["profileImageUrls"].length > 0){
+                    for(let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++){
+                        profilesWithSignedUrls[i]["profileImageUrls"][j] = {type:profilesWithSignedUrls[i]["profileImagesType"][j],url:profilesWithSignedUrls[i]["profileImageUrls"][j]};
                     }
                 }
             }
