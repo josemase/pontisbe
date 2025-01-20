@@ -173,7 +173,7 @@ router.get('/profiles/:id', async (req, res) => {
             for(let i=0;i<profilesWithSignedUrls.length;i++){
                 if(profilesWithSignedUrls[i]["profileImageUrls"].length > 0){
                     for(let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++){
-                        profilesWithSignedUrls[i]["profileImageUrls"][j] = "hola";
+                        profilesWithSignedUrls[i]["profileImageUrls"][j] = {"hola":"que mas"};
                     }
                 }
             }
