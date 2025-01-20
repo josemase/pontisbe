@@ -172,11 +172,11 @@ router.get('/profiles/:id', async (req, res) => {
             console.log(profilesWithSignedUrls);
             console.log(profilesWithSignedUrls[0]["profileImageUrls"]);
             const myProfiles=profilesWithSignedUrls.map((profile)=> {
-                if (profile["profileImageUrls"].length > 0) {
-                    for (let i = 0; i < profile["profileImageUrls"].length; i++) {
-                        profile["profileImageUrls"][i] = {
-                            type: profile["profileImagesType"][i],
-                            url: profile["profileImageUrls"][i]
+                if (profile.profileImageUrls.length > 0) {
+                    for (let i = 0; i < profile.profileImageUrls.length; i++) {
+                        profile.profileImageUrls[i] = {
+                            type: profile.profileImagesType[i],
+                            url: profile.profileImageUrls[i] as string // Ensure the type is string
                         };
                     }
                 }
