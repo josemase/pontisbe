@@ -147,8 +147,6 @@ router.get('/profiles/:id', async (req, res) => {
                 },
             });
 
-
-
             const profilesWithSignedUrls = await Promise.all(profiles.map(async profile => {
                 const s3Client = new S3Client({ region: process.env.AWS_REGION });
                 if(profile.profileImages.length > 0) {
@@ -173,7 +171,7 @@ router.get('/profiles/:id', async (req, res) => {
             for(let i=0;i<profilesWithSignedUrls.length;i++){
                 if(profilesWithSignedUrls[i]["profileImageUrls"].length > 0){
                     for(let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++){
-                        profilesWithSignedUrls[i]["profileImageUrls"][j] = {"hola":"que mas"};
+                        profilesWithSignedUrls[i]["profileImageUrls"][j] = {type:profilesWithSignedUrls[i]["profileImagesType"][j],url:profilesWithSignedUrls[i]["profileImageUrls"][j]};
                     }
                 }
             }
