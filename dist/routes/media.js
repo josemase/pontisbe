@@ -147,7 +147,7 @@ router.get('/:id', async (req, res) => {
             res.json(media);
         }
         catch (err) {
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).json({ error: 'Internal Server Error', message: err });
         }
     }
     await getMedia();

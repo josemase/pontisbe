@@ -173,7 +173,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
             res.json(media);
         } catch (err) {
-            res.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).json({ error: 'Internal Server Error here', message: err });
         }
     }
 

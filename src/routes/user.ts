@@ -132,7 +132,7 @@ router.get('/profile/:id', async (req, res) => {
 
     getItem();
 });
-/*
+
 // Gets profiles by user id
 // curl -X GET http://localhost:4000/user/profiles/3f652956-9cad-4085-a8b8-fa2ffbc4ef88
 router.get('/profiles/:id', async (req, res) => {
@@ -147,7 +147,7 @@ router.get('/profiles/:id', async (req, res) => {
                 },
             });
 
-            console.log(profiles);
+
 
             const profilesWithSignedUrls = await Promise.all(profiles.map(async profile => {
                 const s3Client = new S3Client({ region: process.env.AWS_REGION });
@@ -168,9 +168,22 @@ router.get('/profiles/:id', async (req, res) => {
                     profileImageUrls: []
                 }
             }));
+
             console.log(profilesWithSignedUrls);
-    
-            res.json(profilesWithSignedUrls);
+            console.log(profilesWithSignedUrls[0]["profileImageUrls"]);
+            const myProfiles=profilesWithSignedUrls.map((profile)=> {
+                if (profile["profileImageUrls"].length > 0) {
+                    for (let i = 0; i < profile["profileImageUrls"].length; i++) {
+                        profile["profileImageUrls"][i] = {
+                            type: profile["profileImagesType"][i],
+                            url: profile["profileImageUrls"][i]
+                        };
+                    }
+                }
+                return profile;
+            });
+            const [{ profileImagesType, ...profile }] = myProfiles;
+            res.json(profile);
         } catch (err) {
             res.status(500).json({ error: 'Internal Server Error' });
         }
@@ -179,7 +192,7 @@ router.get('/profiles/:id', async (req, res) => {
 
     getItems();
 });
-*/
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
