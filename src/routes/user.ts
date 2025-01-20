@@ -170,19 +170,15 @@ router.get('/profiles/:id', async (req, res) => {
             }));
 
             console.log(profilesWithSignedUrls);
-            console.log(profilesWithSignedUrls[0]["profileImageUrls"]);
-            const myProfiles=profilesWithSignedUrls.map((profile)=> {
-                if (profile.profileImageUrls.length > 0) {
-                    for (let i = 0; i < profile.profileImageUrls.length; i++) {
-                        profile.profileImageUrls[i] = {
-                            type: profile.profileImagesType[i],
-                            url: profile.profileImageUrls[i] as string // Ensure the type is string
-                        };
+            for(let i=0;i<profilesWithSignedUrls.length;i++){
+                if(profilesWithSignedUrls[i]["profileImageUrls"].length > 0){
+                    for(let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++){
+                        profilesWithSignedUrls[i]["profileImageUrls"][j]={type:profilesWithSignedUrls[i]["profileImagesType"][j],url:profilesWithSignedUrls[i]["profileImageUrls"][j]};
                     }
                 }
-                return profile;
-            });
-            const [{ profileImagesType, ...profile }] = myProfiles;
+            }
+
+            const [{ profileImagesType, ...profile }] = profilesWithSignedUrls;
             res.json(profile);
         } catch (err) {
             res.status(500).json({ error: 'Internal Server Error' });
