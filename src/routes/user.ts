@@ -132,6 +132,10 @@ router.get('/profile/:id', async (req, res) => {
 
     getItem();
 });
+/*interface ProfileImage {
+    type: string;
+    url: string;
+}*/
 interface ProfileImage {
     type: string;
     url: string;
@@ -150,6 +154,29 @@ router.get('/profiles/:id', async (req, res) => {
                 },
             });
 
+            /*const profilesWithSignedUrls = await Promise.all(profiles.map(async (profile, i) => {
+                const profileImageUrls: ProfileImage[] = [];
+                const s3Client = new S3Client({ region: process.env.AWS_REGION });
+                if(profile.profileImages.length > 0) {
+                    const profileImageCommand = new GetObjectCommand({
+                        Bucket: process.env.S3_BUCKET_NAME,
+                        Key: profile.profileImages[0] // Store the key in the database
+                    });
+                    const profileImageUrl = await getSignedUrl(s3Client, profileImageCommand, { expiresIn: 172800 });
+                    profileImageUrls.push({
+                        type: profile.profileImagesType[i],
+                        url: profileImageUrl
+                    });
+                    return {
+                        ...profile,
+                        profileImageUrls
+                    };
+                }
+                return {
+                    ...profile,
+                    profileImageUrls: []
+                }
+            }));*/
             const profilesWithSignedUrls = await Promise.all(profiles.map(async (profile, i) => {
                 const profileImageUrls: ProfileImage[] = [];
                 const s3Client = new S3Client({ region: process.env.AWS_REGION });
@@ -175,10 +202,20 @@ router.get('/profiles/:id', async (req, res) => {
             }));
 
             console.log(profilesWithSignedUrls);
-            for(let i=0;i<profilesWithSignedUrls.length;i++){
+            /*for(let i=0;i<profilesWithSignedUrls.length;i++){
                 if(profilesWithSignedUrls[i]["profileImageUrls"].length > 0){
                     for(let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++){
                         profilesWithSignedUrls[i]["profileImageUrls"][j] = {type:profilesWithSignedUrls[i]["profileImagesType"][j],url:profilesWithSignedUrls[i]["profileImageUrls"][j]};
+                    }
+                }
+            }*/
+            for (let i = 0; i < profilesWithSignedUrls.length; i++) {
+                if (profilesWithSignedUrls[i]["profileImageUrls"].length > 0) {
+                    for (let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++) {
+                        profilesWithSignedUrls[i]["profileImageUrls"][j] = {
+                            type: profilesWithSignedUrls[i]["profileImagesType"][j],
+                            url: profilesWithSignedUrls[i]["profileImageUrls"][j].url
+                        };
                     }
                 }
             }
