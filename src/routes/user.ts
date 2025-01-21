@@ -392,7 +392,7 @@ router.put('/profile/images/:uid/:id', upload.fields([{name: 'images', maxCount:
                 }
             });
             for(let i = 0; i < profileImageKeys.length; i++){
-                profile["profileImages"][i+1]={url:profileImageKeys[i],type:profileImagesType[i]};
+                profile["profileImages"][i+1]={url:profileImageKeys[i],type:profileImagesType[i]} as any;
             }
             console.log("este es el largo:"+profile["profileImages"].length);
             res.json(profile);
