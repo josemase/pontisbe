@@ -384,7 +384,7 @@ router.put('/profile/images/:uid/:id', upload.fields([{name: 'images', maxCount:
                 data: {
                     profileImages: {
                         push: profileImageKeys
-                    } as any[],
+                    },
                     profileImagesType: {
                         push: profileImagesType
                     }
