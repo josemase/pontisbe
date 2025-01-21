@@ -270,7 +270,7 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
                     deathCountry,
                     deathCity,
                     interests: [],
-                    profileImages: [profileImageKey],
+                    profileImages: [profileImageKey] as any[],
                     religion,
                     profileImagesType: [fileType]
                 }
