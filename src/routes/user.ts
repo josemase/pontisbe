@@ -275,9 +275,8 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
                     profileImagesType: [fileType]
                 }
             });
-            profile["profileImages"]=[]
-            console.log(profile["profileImages"][0]);
-            profile["profileImages"][0]={url:profileImageKey,type:fileType}
+
+            profile.profileImages[0]={url:profileImageKey,type:fileType}
             const { profileImagesType, ...newProfile } = profile;
             res.json(newProfile);
         } catch (err) {
@@ -328,7 +327,6 @@ router.put('/profile/:id', async (req: CustomRequest<ProfileData>, res: Response
             res.status(500).json({ error: 'Internal Server Error'});
         }
     }
-
     updateProfile();
 });
 
@@ -394,7 +392,6 @@ router.put('/profile/images/:uid/:id', upload.fields([{name: 'images', maxCount:
             for(let i = 0; i < profileImageKeys.length; i++){
                 profile["profileImages"][i+1]={url:profileImageKeys[i],type:profileImagesType[i]};
             }
-            console.log("este es el largo:"+profile["profileImages"].length);
             res.json(profile);
         } catch (err: any) {
             console.error('Error details:', err);
@@ -403,9 +400,6 @@ router.put('/profile/images/:uid/:id', upload.fields([{name: 'images', maxCount:
 
 
     }
-
-
-
     updateProfileImages();
 });
 
