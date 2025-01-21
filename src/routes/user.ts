@@ -270,16 +270,14 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
                     deathCountry,
                     deathCity,
                     interests: [],
-                    profileImages: [profileImageKey] as any[],
+                    profileImages: [profileImageKey],
                     religion,
                     profileImagesType: [fileType]
                 }
             });
-
+            console.log(profile);
             profile["profileImages"][0]={url:profileImageKey,type:fileType}
-            const { profileImages, ...tempProfile } = profile;
-            tempProfile.profileImages = [{url:profileImageKey,type:fileType}];
-            const { profileImagesType, ...newProfile } = tempProfile;
+            const { profileImagesType, ...newProfile } = profile;
             res.json(newProfile);
         } catch (err) {
             if (err instanceof Error) {
@@ -329,6 +327,7 @@ router.put('/profile/:id', async (req: CustomRequest<ProfileData>, res: Response
             res.status(500).json({ error: 'Internal Server Error'});
         }
     }
+
     updateProfile();
 });
 
@@ -358,7 +357,7 @@ router.put('/profile/images/:uid/:id', upload.fields([{name: 'images', maxCount:
                 } else {
                     console.log('The file is neither an image nor a video');
                 }
-
+                console.log(fileType);
                 const profileImage = multerReq.files['images'][i];
                 const uuid = randomUUID();
                 const bucketName = process.env.S3_BUCKET_NAME;
@@ -394,6 +393,7 @@ router.put('/profile/images/:uid/:id', upload.fields([{name: 'images', maxCount:
             for(let i = 0; i < profileImageKeys.length; i++){
                 profile["profileImages"][i+1]={url:profileImageKeys[i],type:profileImagesType[i]};
             }
+            console.log("este es el largo:"+profile["profileImages"].length);
             res.json(profile);
         } catch (err: any) {
             console.error('Error details:', err);
@@ -402,6 +402,9 @@ router.put('/profile/images/:uid/:id', upload.fields([{name: 'images', maxCount:
 
 
     }
+
+
+
     updateProfileImages();
 });
 
