@@ -275,10 +275,9 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
                     profileImagesType: [fileType]
                 }
             });
-            console.log(profile["profileImages"][0]);
-
-
-            profile["profileImages"][0]=[{url:profileImageKey,type:fileType}]
+            console.log(profile);
+            profile["profileImages"]=[]
+            profile["profileImages"][0]={url:profileImageKey,type:fileType}
             const { profileImagesType, ...newProfile } = profile;
             res.json(newProfile);
         } catch (err) {
