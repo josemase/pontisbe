@@ -171,16 +171,14 @@ router.get('/profiles/:id', async (req, res) => {
                     profileImageUrls: []
                 }
             }));
-
-            for(let i = 0; i < profilesWithSignedUrls.length; i++){
-                if(profilesWithSignedUrls[i]["profileImageUrls"].length > 0){
-                    for(let j = 0; j < profilesWithSignedUrls[i]["profileImageUrls"].length; j++){
-
-                        profilesWithSignedUrls[i]["profileImageUrls"][j]={type:profilesWithSignedUrls[i]["profileImagesType"][j],url:profilesWithSignedUrls[i]["profileImageUrls"][j]};
+            profilesWithSignedUrls.forEach(profile => {
+                if(profile["profileImageUrls"].length > 0){
+                    for(let j = 0; j < profile["profileImageUrls"].length; j++){
+                        profile["profileImageUrls"][j]={type:profile["profileImagesType"][j],url:profile["profileImageUrls"][j]};
                     }
                 }
+            });
 
-            }
             res.json(profilesWithSignedUrls);
         } catch (err) {
             res.status(500).json({ error: 'Internal Server Error' });
@@ -277,6 +275,8 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
                     profileImagesType: [fileType]
                 }
             });
+            console.log(profile);
+            profile["profileImages"][0]={url:profileImageKey,type:fileType}
             const { profileImagesType, ...newProfile } = profile;
             res.json(newProfile);
         } catch (err) {
@@ -297,12 +297,21 @@ router.post('/profile/:id', upload.fields([{ name: 'profileImage', maxCount: 1}]
 router.put('/profile/:id', async (req: CustomRequest<ProfileData>, res: Response) => {
     async function updateProfile() {
         try {
-
             let tmp = req.body;
+
             if(req.body.birthDate){
             tmp.birthDate = new Date(req.body.birthDate);
             tmp.deathDate = new Date(req.body.deathDate);
         }
+            const existingProfile = await prisma.profile.findUnique({
+                where: {
+                    id: req.params.id
+                }
+            });
+
+            if (!existingProfile) {
+                return res.status(404).json({ error: 'Profile not found' });
+            }
             const profile = await prisma.profile.update({
                 where: {
                     id: req.params.id
@@ -327,17 +336,28 @@ router.put('/profile/:id', async (req: CustomRequest<ProfileData>, res: Response
 router.put('/profile/images/:uid/:id', upload.fields([{name: 'images', maxCount: 6}]), async (req: Request, res: Response) => {
     const id = req.params.id;
     const multerReq = req as MulterRequest; // Cast req to MulterRequest type
-
     const uid = req.params.uid;
     const profileImageKeys: string[] = [];
+    const profileImagesType: string[] = [];
 
     async function updateProfileImages() {
         try {
+            let fileType = 'other';
             if (!multerReq.files || !multerReq.files['images']) {
                 return res.status(400).json({ error: 'Profile images are required.' });
             }
 
             for(let i = 0; i < multerReq.files['images'].length; i++) {
+                const mediaProfileType= multerReq.files['images'][i].mimetype;
+
+                if (mediaProfileType.startsWith('image/')) {
+                    fileType = 'image';
+                } else if (mediaProfileType.startsWith('video/')) {
+                    fileType = 'video';
+                } else {
+                    console.log('The file is neither an image nor a video');
+                }
+
                 const profileImage = multerReq.files['images'][i];
                 const uuid = randomUUID();
                 const bucketName = process.env.S3_BUCKET_NAME;
@@ -351,7 +371,11 @@ router.put('/profile/images/:uid/:id', upload.fields([{name: 'images', maxCount:
                     ContentType: profileImage.mimetype
                 }));
                 profileImageKeys.push(profileImageKey);
+                profileImagesType.push(fileType);
             }
+            profileImagesType.forEach((type) => {
+                console.log(type);
+            });
 
             const profile = await prisma.profile.update({
                 where: {
@@ -360,16 +384,26 @@ router.put('/profile/images/:uid/:id', upload.fields([{name: 'images', maxCount:
                 data: {
                     profileImages: {
                         push: profileImageKeys
+                    },
+                    profileImagesType: {
+                        push: profileImagesType
                     }
                 }
             });
-
+            for(let i = 0; i < profileImageKeys.length; i++){
+                profile["profileImages"][i+1]={url:profileImageKeys[i],type:profileImagesType[i]};
+            }
+            console.log("este es el largo:"+profile["profileImages"].length);
             res.json(profile);
         } catch (err: any) {
             console.error('Error details:', err);
             res.status(500).json({ error: 'Internal Server Error', message: err.message });
         }
+
+
     }
+
+
 
     updateProfileImages();
 });
