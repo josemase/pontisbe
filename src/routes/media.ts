@@ -35,7 +35,7 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
         }
         const mediaItems = [];
         for(let i = 0; i < multerReq.files['media'].length; i++) {
-            let mediaImage = multerReq.files['media'][i];
+            const mediaImage = multerReq.files['media'][i];
             const mediaTypeUploaded = mediaImage.mimetype;
             const id = multerReq.params.id;
             try {
@@ -44,10 +44,14 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
                 const region = process.env.AWS_REGION;
                 const client = new S3Client({region});
                 const mediaImageKey = `${id}/${uuid}/media`;
+                const compressedImageBuffer = await sharp(mediaImage.buffer)
+                    .resize(800)
+                    .jpeg({quality: 80})
+                    .toBuffer();
                 await client.send(new PutObjectCommand({
                     Bucket: bucketName,
                     Key: mediaImageKey,
-                    Body: mediaImage.buffer,
+                    Body: compressedImageBuffer,
                     ContentType: mediaImage.mimetype
                 }));
                 const media = await prisma.media.create({
