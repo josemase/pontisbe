@@ -44,10 +44,12 @@ router.post('/:id', upload.fields([{ name: 'media', maxCount: 8}]), async (req: 
                 const region = process.env.AWS_REGION;
                 const client = new S3Client({region});
                 const mediaImageKey = `${id}/${uuid}/media`;
-                const compressedImageBuffer = await sharp(mediaImage.buffer)
-                    .resize(800)
-                    .jpeg({quality: 80})
-                    .toBuffer();
+                if(mediaTypeUploaded==='image/jpeg' || mediaTypeUploaded==='image/png') {
+                    const compressedImageBuffer = await sharp(mediaImage.buffer)
+                        .resize(800)
+                        .jpeg({quality: 80})
+                        .toBuffer();
+                }
                 await client.send(new PutObjectCommand({
                     Bucket: bucketName,
                     Key: mediaImageKey,
