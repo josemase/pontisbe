@@ -13,10 +13,10 @@ const port = 4000;
 dotenv.config();
 app.use(cors());
 app.use(express.json());
-app.use('/user', userRoutes);
-app.use('/story', storyRoutes);
-app.use('/media', mediaGalleryRoutes);
-app.use('/family', familyRoutes);
+app.use('/usert', userRoutes);
+app.use('/storyt', storyRoutes);
+app.use('/mediat', mediaGalleryRoutes);
+app.use('/familyt', familyRoutes);
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
